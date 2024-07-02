@@ -5,7 +5,7 @@ Created on Sun Apr 11 17:25:10 2021
 @author: 易新凯
 """
 #NM-Smote
-
+#hdsioaojdioscjopedspocfjds
 #分类器
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
