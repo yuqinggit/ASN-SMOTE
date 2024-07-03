@@ -281,13 +281,20 @@ def NBClassifier(xtrain,ytrain,xtest,ytest):
     # print("Acc=%.6f" % Acc)
     return F_Measure,G_Mean,AUC
 plt.rcParams['font.sans-serif']=['Times New Roman']
-data = pd.read_excel('DFS-B超&MRI.xlsx',encoding='gbk')
+# 原代码：
+# data = pd.read_excel('DFS-B超&MRI.xlsx',encoding='gbk')
+# 改：
+data = pd.read_excel('pima.xlsx')
 
 #g_sample=generate_x(data,100,5)
 
 print("ASN_SMOTE")
-X = data.drop(['DFS'],axis=1)
-Y = data['DFS']
+
+# axis=1表示操作是沿着列（特征）进行的。
+# 原代码：X = data.drop(['DFS'],axis=1)
+# 改：
+X = data.drop(['Class'],axis=1)
+Y = data['Class']
 x=np.array(X)
 y=np.array(Y)
 kf=StratifiedKFold(n_splits=5)
