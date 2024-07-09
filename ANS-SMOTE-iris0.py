@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Apr 11 17:25:10 2021
+Created on Sun Apr 11 17:25:102021
 
 @author: 易新凯
 """
 #NM-Smote
 #hdsioaojdioscjopedspocfjds
+from collections import Counter
 #分类器
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
@@ -49,7 +50,7 @@ def generate_x(samples,N,k):
     wrg=0
     samples_X=samples.iloc[:,0:-1]
     samples_Y=samples.iloc[:,-1]
-    Minority_sample=samples[samples.iloc[:,-1].isin(['1'])]
+    Minority_sample=samples[samples.iloc[:,-1].isin([1])]
     Minority_sample_X=Minority_sample.iloc[:,0:-1]
                                        
     # transfer = StandardScaler()
@@ -61,6 +62,8 @@ def generate_x(samples,N,k):
     print(n1)
     #n=int((All_X.shape[0]-2*Minority_X.shape[0])/Minority_X.shape[0])
     #print(n)
+    
+    # 对每一个少数类样本，计算所有其余样本到该样本的欧式距离
     dis_matrix=np.zeros((Minority_X.shape[0],All_X.shape[0]),dtype=float)
     for i in range(0,Minority_X.shape[0]):
         for j in range(0,All_X.shape[0]):
@@ -78,11 +81,7 @@ def generate_x(samples,N,k):
             d.append(i)
     Minority_X=np.delete(Minority_X,d,axis=0)
     
-    print("-------------------除0异常----------------------")
-    print(Minority_X.shape)
-
-    
-    n=int((n1)/(Minority_X.shape[0]+0.01))
+    n=int((n1)/(Minority_X.shape[0]))
     #print(n)
     synthetic = np.zeros(((Minority_X.shape[0])*n,Minority_X.shape[1]),dtype=float)
     #print(Minority_X.shape[0])
@@ -192,7 +191,8 @@ def RandomforClassifier(xtrain,ytrain,xtest,ytest):
     rfc=rfc.fit(xtrain,ytrain)
     # #测试评估
     #result=rfc.score(xtest,ytest)
-    AUC=roc_auc_score(ytest,rfc.predict_proba(xtest)[:,1],multi_class='ovo')
+    # 原代码：AUC=roc_auc_score(ytest,rfc.predict_proba(xtest)[:,1])
+    AUC=roc_auc_score(ytest,rfc.predict_proba(xtest)[:,1])
     cm=confusion_matrix(ytest,rfc.predict(xtest))
     TN=cm[0][0]
     FP=cm[0][1]
@@ -301,6 +301,7 @@ X = data.drop(['Class'],axis=1)
 Y = data['Class']
 x=np.array(X)
 y=np.array(Y)
+print(sorted(Counter(y).items()))
 kf=StratifiedKFold(n_splits=5)
 F=[]
 G=[]
@@ -327,6 +328,8 @@ for train_index,test_index in kf.split(x,y):
     aAuc=[]
     aAcc=[]
     for i in range(3):
+        print(g_sample.shape)
+        # g_sample[:,0:-1]取训练集的特征部分，g_sample[:,-1]取训练集的标签，xtest,ytest是测试集
         fm,gm,Auc,Acc=RandomforClassifier(g_sample[:,0:-1],g_sample[:,-1],xtest,ytest)
         afm.append(fm)
         agm.append(gm)
